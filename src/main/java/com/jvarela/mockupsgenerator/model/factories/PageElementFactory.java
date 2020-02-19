@@ -91,20 +91,14 @@ public class PageElementFactory {
 
             while (currentYCapacity > 0) {
                 ElementNode node;
-                if (random.nextInt(10) > 2) {
-                    if (currentYCapacity == 4 && random.nextInt(10) > 3) {
-                        NodeComponent titleComponent = NodeComponentFactory.getTitleComponent();
-                        titleComponent.randomizePosition(null);
-                        node = ElementNode.builder()
-                                .xCapacity(row.getXCapacity())
-                                .yCapacity(currentYCapacity)
-                                .components(Collections.singletonList(titleComponent))
-                                .build();
-                        node.fillWithRandomComponents();
-                    } else {
-                        node = ElementNode
-                                .getRandomNodeWithCapacityBetweenInclusive(row.getXCapacity(), 1, row.getXCapacity(), currentYCapacity);
-                    }
+                if (random.nextInt(100) > 12) {
+                    node = ElementNode
+                            .getRandomNodeWithCapacityBetweenInclusive(
+                                    row.getXCapacity(),
+                                    1,
+                                    row.getXCapacity(),
+                                    currentYCapacity
+                            );
                 } else {
                     node = ElementNode.builder()
                             .xCapacity(row.getXCapacity())
@@ -171,7 +165,7 @@ public class PageElementFactory {
                         .build();
                 int numberOfLinks = random.nextInt((linkNode.getYCapacity() * 2) + 1);
                 for (int i = 0; i < numberOfLinks; i++) {
-                    if (random.nextBoolean()) {
+                    if (random.nextInt(10) > 2) {
                         NodeComponent linkComponent = NodeComponentFactory.getLinkComponent();
                         linkComponent.randomizePosition(linkNode);
                         linkNode.getComponents().add(linkComponent);

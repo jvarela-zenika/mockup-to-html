@@ -1,7 +1,6 @@
 package com.jvarela.mockupsgenerator.model.components;
 
 import com.jvarela.mockupsgenerator.enums.ElementType;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.util.CollectionUtils;

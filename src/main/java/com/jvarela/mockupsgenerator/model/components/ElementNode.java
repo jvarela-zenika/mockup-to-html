@@ -6,10 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -77,14 +74,20 @@ public class ElementNode {
 
     private static int getRandomRangeCapacity(int min, int max) {
         Random random = new Random();
-        return getRandomCapacity(random.nextInt((max - min) + 1) + min);
+        int capacity = random.nextInt((max + 1) - min) + min;
+        if (capacity == 3) {
+            capacity = max >= 4 ? 4 : 2;
+        } else if (capacity > 4) {
+            capacity = 4;
+        }
+        return capacity;
     }
 
     private static Integer getRandomCapacity(int currentCapacity) {
         Random random = new Random();
         int capacity = random.nextInt(currentCapacity) + 1;
         if (capacity == 3) {
-            capacity = 2;
+            capacity = currentCapacity >= 4 ? 4 : 2;
         } else if (capacity > 4) {
             capacity = 4;
         }
@@ -95,18 +98,22 @@ public class ElementNode {
         float currentXCapacity = (float) xCapacity;
         float currentYCapacity = (float) yCapacity;
 
-        for (NodeComponent component : components) {
-            currentXCapacity -= component.getXSpace();
-            currentYCapacity -= component.getYSpace();
-        }
+        if (CollectionUtils.isEmpty(components) && new Random().nextInt(10) > 7){
+            components.add(NodeComponentFactory.getImageComponent());
+        } else {
+            for (NodeComponent component : components) {
+                currentXCapacity -= component.getXSpace();
+                currentYCapacity -= component.getYSpace();
+            }
 
-        NodeComponent currentComponent = NodeComponentFactory.getRandomWhereSpaceSmallerOrEqualThan(currentXCapacity, currentYCapacity);
-        while (currentComponent != null) {
-            currentComponent.randomizePosition(this);
-            this.components.add(currentComponent);
-            currentXCapacity -= currentComponent.getXSpace();
-            currentYCapacity -= currentComponent.getYSpace();
-            currentComponent = NodeComponentFactory.getRandomWhereSpaceSmallerOrEqualThan(currentXCapacity, currentYCapacity);
+            NodeComponent currentComponent = NodeComponentFactory.getRandomWhereSpaceSmallerOrEqualThan(currentXCapacity, currentYCapacity);
+            while (currentComponent != null) {
+                currentComponent.randomizePosition(this);
+                this.components.add(currentComponent);
+                currentXCapacity -= currentComponent.getXSpace();
+                currentYCapacity -= currentComponent.getYSpace();
+                currentComponent = NodeComponentFactory.getRandomWhereSpaceSmallerOrEqualThan(currentXCapacity, currentYCapacity);
+            }
         }
     }
 }

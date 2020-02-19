@@ -112,6 +112,7 @@ public class NodeComponentFactory {
 
         List<NodeComponent> filteredComponents = getAllComponents()
                 .stream()
+                .filter(nodeComponent -> nodeComponent.getType() != NodeComponentType.IMAGE)
                 .filter(nodeComponent -> nodeComponent.getXSpace() <= x && nodeComponent.getYSpace() <= y)
                 .collect(Collectors.toList());
 

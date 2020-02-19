@@ -23,7 +23,7 @@ public class Page {
     @Override
     public String toString() {
         String ls = System.lineSeparator();
-        return String.format("<START>%s{%s%s%s}%s<END>", ls, ls, getChildToString(), ls, ls);
+        return String.format("{%s%s%s}", ls, getChildToString(), ls);
     }
 
     public String getChildToString() {
@@ -39,15 +39,15 @@ public class Page {
         List<PageElement> elements = new ArrayList<>();
 
         while (CollectionUtils.isEmpty(elements)) {
-            if (random.nextInt(10) > 3) {
+            if (random.nextInt(100) > 5) {
                 elements.add(PageElementFactory.getRandomizedPageElement(ElementType.HEADER));
             }
 
-            if (random.nextInt(10) > 1) {
+            if (random.nextInt(100) > 3) {
                 elements.add(PageElementFactory.getRandomizedPageElement(ElementType.BODY));
             }
 
-            if (random.nextBoolean()) {
+            if (random.nextInt(100) > 5) {
                 elements.add(PageElementFactory.getRandomizedPageElement(ElementType.FOOTER));
             }
         }
