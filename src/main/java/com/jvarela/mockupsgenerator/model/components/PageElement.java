@@ -28,6 +28,14 @@ public class PageElement {
     @Override
     public String toString() {
         String ls = System.lineSeparator();
-        return type.name().toLowerCase() + " {" + ls + nodes.stream().map(ElementNode::toString).collect(Collectors.joining(ls)) + ls + "}";
+        return type.name().toLowerCase() + " {" + ls + getChildrenToString() + ls + "}";
+    }
+
+    private String getChildrenToString() {
+        String ls = System.lineSeparator();
+
+        return CollectionUtils.isEmpty(nodes) ?
+                "empty"
+                : nodes.stream().map(ElementNode::toString).collect(Collectors.joining(ls));
     }
 }

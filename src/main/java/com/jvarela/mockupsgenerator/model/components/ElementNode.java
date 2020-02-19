@@ -28,7 +28,13 @@ public class ElementNode {
     @Override
     public String toString() {
         String ls = System.lineSeparator();
-        return getName() + " {" + ls + components.stream().map(NodeComponent::toString).collect(Collectors.joining(", ")) + ls + "}";
+        return getName() + " {" + ls + getChildToString() + ls + "}";
+    }
+
+    public String getChildToString() {
+        return CollectionUtils.isEmpty(components)
+                ? "empty"
+                : components.stream().map(NodeComponent::toString).collect(Collectors.joining(", "));
     }
 
     public String getName() {
@@ -51,11 +57,13 @@ public class ElementNode {
     }
 
     public static ElementNode getRandomNodeWithCapacityBetweenInclusive(
+            int minXCapacity,
+            int minYCapacity,
             int maxXCapacity,
             int maxYCapacity
-    ){
-        int xCapacity = getRandomCapacity(maxXCapacity);
-        int yCapacity = getRandomCapacity(maxYCapacity);
+    ) {
+        int xCapacity = getRandomRangeCapacity(minXCapacity, maxXCapacity);
+        int yCapacity = getRandomRangeCapacity(minYCapacity, maxYCapacity);
 
         ElementNode node = ElementNode.builder()
                 .xCapacity(xCapacity)
@@ -65,6 +73,11 @@ public class ElementNode {
         node.fillWithRandomComponents();
 
         return node;
+    }
+
+    private static int getRandomRangeCapacity(int min, int max) {
+        Random random = new Random();
+        return getRandomCapacity(random.nextInt((max - min) + 1) + min);
     }
 
     private static Integer getRandomCapacity(int currentCapacity) {
@@ -78,15 +91,19 @@ public class ElementNode {
         return capacity;
     }
 
-    public void fillWithRandomComponents(){
-        NodeComponent currentComponent = NodeComponentFactory.getRandomWhereSpaceSmallerOrEqualThan(xCapacity, yCapacity);
+    public void fillWithRandomComponents() {
         float currentXCapacity = (float) xCapacity;
         float currentYCapacity = (float) yCapacity;
 
-        while (currentComponent != null){
-            currentComponent.randomizePosition();
-            this.components.add(currentComponent);
+        for (NodeComponent component : components) {
+            currentXCapacity -= component.getXSpace();
+            currentYCapacity -= component.getYSpace();
+        }
 
+        NodeComponent currentComponent = NodeComponentFactory.getRandomWhereSpaceSmallerOrEqualThan(currentXCapacity, currentYCapacity);
+        while (currentComponent != null) {
+            currentComponent.randomizePosition(this);
+            this.components.add(currentComponent);
             currentXCapacity -= currentComponent.getXSpace();
             currentYCapacity -= currentComponent.getYSpace();
             currentComponent = NodeComponentFactory.getRandomWhereSpaceSmallerOrEqualThan(currentXCapacity, currentYCapacity);

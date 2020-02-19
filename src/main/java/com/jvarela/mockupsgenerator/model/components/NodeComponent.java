@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.Random;
-
 @Data
 @AllArgsConstructor
 @Builder
@@ -22,18 +20,15 @@ public class NodeComponent {
         return type.name().toLowerCase() + "-" + position.name().toLowerCase();
     }
 
-    public void randomizePosition() {
-        // between [1 & 3]
-        int rgn = new Random().nextInt(4) + 1;
-        switch (rgn) {
-            case 1:
-                position = PositionEnum.LEFT;
-                break;
-            case 2:
-                position = PositionEnum.CENTER;
-                break;
-            case 3:
-                position = PositionEnum.RIGHT;
+    public void randomizePosition(ElementNode node) {
+        if (node == null) {
+            position = PositionEnum.getRandomPosition();
+        } else {
+            position = node.getComponents()
+                    .stream()
+                    .findFirst()
+                    .map(nodeComponent -> nodeComponent.position)
+                    .orElse(PositionEnum.getRandomPosition());
         }
     }
 }

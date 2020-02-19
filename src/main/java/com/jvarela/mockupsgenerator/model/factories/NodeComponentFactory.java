@@ -19,8 +19,8 @@ public class NodeComponentFactory {
             component = NodeComponent.builder()
                     .type(NodeComponentType.TITLE)
                     .position(PositionEnum.LEFT)
-                    .xSpace(2)
-                    .ySpace(1)
+                    .xSpace(1f)
+                    .ySpace(4f)
                     .build();
             components.put(NodeComponentType.TITLE, component);
         }
@@ -33,8 +33,8 @@ public class NodeComponentFactory {
             component = NodeComponent.builder()
                     .type(NodeComponentType.SUBTITLE)
                     .position(PositionEnum.LEFT)
-                    .xSpace(2)
-                    .ySpace(.5f)
+                    .xSpace(.5f)
+                    .ySpace(2f)
                     .build();
             components.put(NodeComponentType.SUBTITLE, component);
         }
@@ -47,8 +47,8 @@ public class NodeComponentFactory {
             component = NodeComponent.builder()
                     .type(NodeComponentType.TEXT)
                     .position(PositionEnum.LEFT)
-                    .xSpace(1)
-                    .ySpace(.5f)
+                    .xSpace(.5f)
+                    .ySpace(1f)
                     .build();
             components.put(NodeComponentType.TEXT, component);
         }

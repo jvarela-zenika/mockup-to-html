@@ -1,12 +1,14 @@
 package com.jvarela.mockupsgenerator.model.factories;
 
 import com.jvarela.mockupsgenerator.enums.ElementType;
+import com.jvarela.mockupsgenerator.model.components.ElementNode;
 import com.jvarela.mockupsgenerator.model.components.NodeComponent;
 import com.jvarela.mockupsgenerator.model.components.PageElement;
-import com.jvarela.mockupsgenerator.model.components.ElementNode;
+import com.jvarela.mockupsgenerator.services.dto.BodyRow;
 import lombok.experimental.UtilityClass;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class PageElementFactory {
@@ -31,8 +33,8 @@ public class PageElementFactory {
         if (element == null) {
             element = PageElement.builder()
                     .type(ElementType.BODY)
-                    .xCapacity(4)
-                    .yCapacity(5)
+                    .xCapacity(5)
+                    .yCapacity(4)
                     .build();
             elements.put(ElementType.BODY, element);
         }
@@ -47,7 +49,7 @@ public class PageElementFactory {
                     .xCapacity(0)
                     .yCapacity(0)
                     .build();
-            elements.put(ElementType.FOOTER,element);
+            elements.put(ElementType.FOOTER, element);
         }
         return element;
     }
@@ -62,35 +64,70 @@ public class PageElementFactory {
             return getRandomizedHeaderElement();
         }
 
+        return getRandomizedBodyElement();
+    }
+
+    private static PageElement getRandomizedBodyElement() {
         PageElement body = getBodyComponent();
 
-        List<ElementNode> bodyNodes = new ArrayList<>();
         int currentXCapacity = body.getXCapacity();
-        int currentYCapacity = body.getYCapacity();
+
+        List<BodyRow> rows = new ArrayList<>();
+
+        while (currentXCapacity > 0) {
+            BodyRow row = BodyRow.builder()
+                    .xCapacity(getRandomCapacity(currentXCapacity))
+                    .build();
+
+            currentXCapacity -= row.getXCapacity();
+
+            rows.add(row);
+        }
+
         Random random = new Random();
 
-        while (currentXCapacity >= 1 && currentYCapacity >= 1) {
+        rows.forEach(row -> {
+            int currentYCapacity = body.getYCapacity();
 
-            int xCapacity = getRandomCapacity(currentXCapacity);
-            int yCapacity = getRandomCapacity(currentYCapacity);
+            while (currentYCapacity > 0) {
+                ElementNode node;
+                if (random.nextInt(10) > 2) {
+                    if (currentYCapacity == 4 && random.nextInt(10) > 3) {
+                        NodeComponent titleComponent = NodeComponentFactory.getTitleComponent();
+                        titleComponent.randomizePosition(null);
+                        node = ElementNode.builder()
+                                .xCapacity(row.getXCapacity())
+                                .yCapacity(currentYCapacity)
+                                .components(Collections.singletonList(titleComponent))
+                                .build();
+                        node.fillWithRandomComponents();
+                    } else {
+                        node = ElementNode
+                                .getRandomNodeWithCapacityBetweenInclusive(row.getXCapacity(), 1, row.getXCapacity(), currentYCapacity);
+                    }
+                } else {
+                    node = ElementNode.builder()
+                            .xCapacity(row.getXCapacity())
+                            .yCapacity(getRandomCapacity(currentYCapacity)).build();
+                }
 
-            ElementNode node;
-
-            if (random.nextBoolean()) {
-                node = ElementNode
-                        .getRandomNodeWithCapacityBetweenInclusive(xCapacity, yCapacity);
-            } else {
-                node = ElementNode.builder().xCapacity(xCapacity).yCapacity(yCapacity).build();
+                currentYCapacity -= node.getYCapacity();
+                row.getNodes().add(node);
             }
+        });
 
-            currentXCapacity -= node.getXCapacity();
-            currentYCapacity -= node.getYCapacity();
+        Collections.shuffle(rows);
 
-            bodyNodes.add(node);
-        }
-        body.setNodes(bodyNodes);
+        body.setNodes(
+                rows.stream()
+                        .map(BodyRow::getNodes)
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toList())
+        );
+
         return body;
     }
+
 
     private static Integer getRandomCapacity(int currentCapacity) {
         Random random = new Random();
@@ -108,51 +145,50 @@ public class PageElementFactory {
         PageElement header = getHeaderComponent();
         Random random = new Random();
         List<ElementNode> headerNodes = new ArrayList<>();
-        int headerCapacity = header.getXCapacity();
+        int headerCapacity = header.getYCapacity();
 
         if (random.nextBoolean()) {
             NodeComponent imageComponent = NodeComponentFactory.getImageComponent();
-            imageComponent.randomizePosition();
+            imageComponent.randomizePosition(null);
 
             ElementNode imageNode = ElementNode.builder()
-                    .xCapacity(random.nextInt(3))
-                    .yCapacity(1)
+                    .xCapacity(1)
+                    .yCapacity(random.nextInt(2) + 1)
                     .components(Collections.singletonList(imageComponent))
                     .build();
 
-            headerCapacity -= imageNode.getXCapacity();
+            headerCapacity -= imageNode.getYCapacity();
             headerNodes.add(imageNode);
-
-        }
-
-        if (random.nextBoolean()) {
-            ElementNode linkNode = ElementNode.builder()
-                    .xCapacity(1)
-                    .yCapacity(getRandomCapacity(random.nextInt(5)+1))
-                    .build();
-
-            for (int i = 0; i < random.nextInt((linkNode.getXCapacity() * 2) + 1); i++) {
-                if (random.nextBoolean()) {
-                    NodeComponent linkComponent = NodeComponentFactory.getLinkComponent();
-                    linkComponent.randomizePosition();
-                    linkNode.getComponents().add(linkComponent);
-                }
-            }
-            headerCapacity -= linkNode.getXCapacity();
-            headerNodes.add(linkNode);
         }
 
         while (headerCapacity > 0) {
             int capacity = getRandomCapacity(headerCapacity);
 
-            ElementNode randomEmptyNode = ElementNode.builder()
-                    .xCapacity(capacity)
-                    .yCapacity(1)
-                    .build();
+            if (random.nextBoolean()) {
+                ElementNode linkNode = ElementNode.builder()
+                        .xCapacity(1)
+                        .yCapacity(getRandomCapacity(capacity))
+                        .build();
+                int numberOfLinks = random.nextInt((linkNode.getYCapacity() * 2) + 1);
+                for (int i = 0; i < numberOfLinks; i++) {
+                    if (random.nextBoolean()) {
+                        NodeComponent linkComponent = NodeComponentFactory.getLinkComponent();
+                        linkComponent.randomizePosition(linkNode);
+                        linkNode.getComponents().add(linkComponent);
+                    }
+                }
+                headerCapacity -= linkNode.getYCapacity();
+                headerNodes.add(linkNode);
+            } else {
+                ElementNode randomEmptyNode = ElementNode.builder()
+                        .xCapacity(1)
+                        .yCapacity(capacity)
+                        .build();
 
-            headerCapacity -= randomEmptyNode.getXCapacity();
+                headerCapacity -= randomEmptyNode.getYCapacity();
 
-            headerNodes.add(randomEmptyNode);
+                headerNodes.add(randomEmptyNode);
+            }
         }
 
         Collections.shuffle(headerNodes);

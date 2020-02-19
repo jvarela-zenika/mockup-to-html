@@ -3,6 +3,7 @@ package com.jvarela.mockupsgenerator.enums;
 import lombok.Getter;
 
 import java.util.Arrays;
+import java.util.Random;
 
 @Getter
 public enum PositionEnum {
@@ -15,5 +16,9 @@ public enum PositionEnum {
                 .stream(PositionEnum.values())
                 .filter(position -> position.ordinal() == id)
                 .findFirst().orElse(LEFT);
+    }
+
+    public static PositionEnum getRandomPosition()  {
+        return PositionEnum.values()[new Random().nextInt(PositionEnum.values().length)];
     }
 }
