@@ -51,14 +51,11 @@ public class ElementNode {
     }
 
     public static ElementNode getRandomNodeWithCapacityBetweenInclusive(
-            int minXCapacity,
-            int minYCapacity,
             int maxXCapacity,
             int maxYCapacity
     ){
-        Random random = new Random();
-        int xCapacity = minXCapacity+random.nextInt(maxXCapacity+1);
-        int yCapacity = minYCapacity+random.nextInt(maxYCapacity+1);
+        int xCapacity = getRandomCapacity(maxXCapacity);
+        int yCapacity = getRandomCapacity(maxYCapacity);
 
         ElementNode node = ElementNode.builder()
                 .xCapacity(xCapacity)
@@ -68,6 +65,17 @@ public class ElementNode {
         node.fillWithRandomComponents();
 
         return node;
+    }
+
+    private static Integer getRandomCapacity(int currentCapacity) {
+        Random random = new Random();
+        int capacity = random.nextInt(currentCapacity) + 1;
+        if (capacity == 3) {
+            capacity = 2;
+        } else if (capacity > 4) {
+            capacity = 4;
+        }
+        return capacity;
     }
 
     public void fillWithRandomComponents(){

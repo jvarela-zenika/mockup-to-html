@@ -110,14 +110,14 @@ public class NodeComponentFactory {
 
     public NodeComponent getRandomWhereSpaceSmallerOrEqualThan(float x, float y) {
 
-        List<NodeComponent> filtredComponents = getAllComponents()
+        List<NodeComponent> filteredComponents = getAllComponents()
                 .stream()
                 .filter(nodeComponent -> nodeComponent.getXSpace() <= x && nodeComponent.getYSpace() <= y)
                 .collect(Collectors.toList());
 
-        Collections.shuffle(filtredComponents);
+        Collections.shuffle(filteredComponents);
 
-        return filtredComponents
+        return filteredComponents
                 .stream()
                 .findFirst()
                 .orElse(null);

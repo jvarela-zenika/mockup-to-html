@@ -78,7 +78,7 @@ public class PageElementFactory {
 
             if (random.nextBoolean()) {
                 node = ElementNode
-                        .getRandomNodeWithCapacityBetweenInclusive(1, 1, xCapacity, yCapacity);
+                        .getRandomNodeWithCapacityBetweenInclusive(xCapacity, yCapacity);
             } else {
                 node = ElementNode.builder().xCapacity(xCapacity).yCapacity(yCapacity).build();
             }
@@ -127,13 +127,9 @@ public class PageElementFactory {
 
         if (random.nextBoolean()) {
             ElementNode linkNode = ElementNode.builder()
-                    .xCapacity(random.nextInt(5))
-                    .yCapacity(1)
+                    .xCapacity(1)
+                    .yCapacity(getRandomCapacity(random.nextInt(5)+1))
                     .build();
-
-            if (linkNode.getXCapacity() == 3) {
-                linkNode.setXCapacity(2);
-            }
 
             for (int i = 0; i < random.nextInt((linkNode.getXCapacity() * 2) + 1); i++) {
                 if (random.nextBoolean()) {
@@ -147,12 +143,8 @@ public class PageElementFactory {
         }
 
         while (headerCapacity > 0) {
-            int capacity = random.nextInt(headerCapacity) + 1;
-            if (capacity == 3) {
-                capacity = 2;
-            } else if (capacity > 4) {
-                capacity = 4;
-            }
+            int capacity = getRandomCapacity(headerCapacity);
+
             ElementNode randomEmptyNode = ElementNode.builder()
                     .xCapacity(capacity)
                     .yCapacity(1)
