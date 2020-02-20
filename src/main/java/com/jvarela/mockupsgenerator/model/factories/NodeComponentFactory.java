@@ -2,8 +2,11 @@ package com.jvarela.mockupsgenerator.model.factories;
 
 import com.jvarela.mockupsgenerator.enums.NodeComponentType;
 import com.jvarela.mockupsgenerator.enums.PositionEnum;
+import com.jvarela.mockupsgenerator.model.components.ElementNode;
 import com.jvarela.mockupsgenerator.model.components.NodeComponent;
+import com.jvarela.mockupsgenerator.services.dto.BodyRow;
 import lombok.experimental.UtilityClass;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;

@@ -39,15 +39,15 @@ public class Page {
         List<PageElement> elements = new ArrayList<>();
 
         while (CollectionUtils.isEmpty(elements)) {
-            if (random.nextInt(100) > 5) {
+            if (random.nextInt(100) > 2) {
                 elements.add(PageElementFactory.getRandomizedPageElement(ElementType.HEADER));
             }
 
-            if (random.nextInt(100) > 3) {
+            if (random.nextInt(100) > 1) {
                 elements.add(PageElementFactory.getRandomizedPageElement(ElementType.BODY));
             }
 
-            if (random.nextInt(100) > 5) {
+            if (random.nextInt(100) > 3) {
                 elements.add(PageElementFactory.getRandomizedPageElement(ElementType.FOOTER));
             }
         }

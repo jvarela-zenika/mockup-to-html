@@ -17,7 +17,7 @@ public class NodeComponent {
 
     @Override
     public String toString() {
-        return type.name().toLowerCase() + "-" + position.name().toLowerCase();
+        return type.name().toLowerCase();
     }
 
     public void randomizePosition(ElementNode node) {

@@ -6,6 +6,7 @@ import com.jvarela.mockupsgenerator.model.components.NodeComponent;
 import com.jvarela.mockupsgenerator.model.components.PageElement;
 import com.jvarela.mockupsgenerator.services.dto.BodyRow;
 import lombok.experimental.UtilityClass;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -111,7 +112,7 @@ public class PageElementFactory {
         });
 
         Collections.shuffle(rows);
-
+        rows.forEach(row -> row.setNodes(mergeEmptyNodes(4, row)));
         body.setNodes(
                 rows.stream()
                         .map(BodyRow::getNodes)
@@ -138,10 +139,13 @@ public class PageElementFactory {
     private static PageElement getRandomizedHeaderElement() {
         PageElement header = getHeaderComponent();
         Random random = new Random();
-        List<ElementNode> headerNodes = new ArrayList<>();
         int headerCapacity = header.getYCapacity();
+        BodyRow row = BodyRow.builder()
+                .xCapacity(1)
+                .nodes(new ArrayList<>())
+                .build();
 
-        if (random.nextBoolean()) {
+        if (random.nextInt(10) > 2) {
             NodeComponent imageComponent = NodeComponentFactory.getImageComponent();
             imageComponent.randomizePosition(null);
 
@@ -152,7 +156,7 @@ public class PageElementFactory {
                     .build();
 
             headerCapacity -= imageNode.getYCapacity();
-            headerNodes.add(imageNode);
+            row.getNodes().add(imageNode);
         }
 
         while (headerCapacity > 0) {
@@ -172,21 +176,121 @@ public class PageElementFactory {
                     }
                 }
                 headerCapacity -= linkNode.getYCapacity();
-                headerNodes.add(linkNode);
+                row.getNodes().add(linkNode);
             } else {
                 ElementNode randomEmptyNode = ElementNode.builder()
                         .xCapacity(1)
                         .yCapacity(capacity)
                         .build();
-
                 headerCapacity -= randomEmptyNode.getYCapacity();
-
-                headerNodes.add(randomEmptyNode);
+                row.getNodes().add(randomEmptyNode);
             }
         }
 
-        Collections.shuffle(headerNodes);
-        header.setNodes(headerNodes);
+        Collections.shuffle(row.getNodes());
+        row.setNodes(mergeEmptyNodes(6, row));
+        header.setNodes(row.getNodes());
         return header;
+    }
+
+
+    public List<ElementNode> mergeEmptyNodes(int yCapacity, BodyRow row) {
+        List<ElementNode> resultList = new ArrayList<>();
+        List<ElementNode> workingList = new ArrayList<>(row.getNodes());
+        List<ElementNode> blackList = new ArrayList<>();
+        int currentXCapacity;
+        int currentYCapacity;
+        boolean isNotFinishedMerge = true;
+
+        while (isNotFinishedMerge) {
+            isNotFinishedMerge = false;
+
+            for (int i = 0; i < workingList.size(); i++) {
+                ElementNode currentNode = workingList.get(i);
+
+                if (blackList.contains(currentNode)) {
+                    continue;
+                }
+
+                if (
+                        !CollectionUtils.isEmpty(currentNode.getComponents())
+                                || i == workingList.size() - 1
+                                || !CollectionUtils.isEmpty(workingList.get(i + 1).getComponents()
+                        )
+                ) {
+                    resultList.add(currentNode);
+                    continue;
+                }
+
+                ElementNode nextNode = workingList.get(i + 1);
+
+                currentXCapacity = getCurrentXCapacity(row, resultList);
+                currentYCapacity = getCurrentYCapacity(yCapacity, resultList);
+
+                int xMergedSpace = currentNode.getXCapacity() + nextNode.getXCapacity();
+                xMergedSpace = getCapacity(xMergedSpace, currentXCapacity);
+                int yMergedSpace = currentNode.getYCapacity() + nextNode.getYCapacity();
+                yMergedSpace = getCapacity(yMergedSpace, currentYCapacity);
+
+                if (xMergedSpace <= currentXCapacity && currentNode.getYCapacity() == nextNode.getYCapacity()) {
+                    currentNode.setXCapacity(xMergedSpace);
+                    resultList.add(currentNode);
+                    blackList.add(nextNode);
+                    isNotFinishedMerge = true;
+                } else if (yMergedSpace <= currentYCapacity && currentNode.getXCapacity() == nextNode.getXCapacity()) {
+                    currentNode.setYCapacity(yMergedSpace);
+                    resultList.add(currentNode);
+                    blackList.add(nextNode);
+                    isNotFinishedMerge = true;
+                } else {
+                    resultList.add(currentNode);
+                }
+            }
+
+            if (isNotFinishedMerge) {
+                workingList.clear();
+                workingList.addAll(new ArrayList<>(resultList));
+                resultList.clear();
+                blackList.clear();
+            }
+
+        }
+
+        currentXCapacity = getCurrentXCapacity(row, resultList);
+        currentYCapacity = getCurrentYCapacity(yCapacity, resultList);
+
+        if (currentXCapacity > 0 && currentYCapacity > 0) {
+            resultList.add(
+                    ElementNode.builder().xCapacity(currentXCapacity).yCapacity(currentYCapacity).build());
+        }
+
+        return resultList;
+    }
+
+    private static int getCurrentYCapacity(int yCapacity, List<ElementNode> resultList) {
+        return yCapacity - resultList
+                .stream()
+                .map(ElementNode::getYCapacity)
+                .reduce(Integer::sum)
+                .orElse(0);
+    }
+
+    private static int getCurrentXCapacity(BodyRow row, List<ElementNode> resultList) {
+        return (
+                resultList
+                        .stream()
+                        .map(ElementNode::getXCapacity)
+                        .reduce(Integer::sum)
+                        .orElse(0) % row.getXCapacity()
+        ) == 0
+                ? row.getXCapacity()
+                : 1;
+    }
+
+    public int getCapacity(int capacity, int maxCapacity) {
+        if (capacity > 4) {
+            return 4;
+        }
+        return capacity == 3 ? maxCapacity : capacity;
     }
 }
