@@ -29,8 +29,8 @@ public class Page {
     public String getChildToString() {
         String ls = System.lineSeparator();
         return CollectionUtils.isEmpty(elements)
-                ? "empty"
-                : elements.stream().map(PageElement::toString).collect(Collectors.joining(ls));
+                ? "generated-page: {" + ls + "}"
+                : "generated-page: " + elements.stream().map(PageElement::toString).collect(Collectors.joining(ls));
     }
 
     public static Page getRandomPage() {

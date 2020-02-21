@@ -34,7 +34,7 @@ public class PageElement {
         String ls = System.lineSeparator();
 
         return CollectionUtils.isEmpty(nodes) ?
-                "empty"
+                ""
                 : nodes.stream().map(ElementNode::toString).collect(Collectors.joining(ls));
     }
 }

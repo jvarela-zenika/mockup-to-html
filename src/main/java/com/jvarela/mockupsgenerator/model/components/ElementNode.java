@@ -30,7 +30,7 @@ public class ElementNode {
 
     public String getChildToString() {
         return CollectionUtils.isEmpty(components)
-                ? "empty"
+                ? ""
                 : components.stream().map(NodeComponent::toString).collect(Collectors.joining(", "));
     }
 
