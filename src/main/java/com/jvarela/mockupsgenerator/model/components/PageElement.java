@@ -33,8 +33,8 @@ public class PageElement {
     private String getChildrenToString() {
         String ls = System.lineSeparator();
 
-        return CollectionUtils.isEmpty(nodes) ?
-                ""
+        return CollectionUtils.isEmpty(nodes)
+                ? ""
                 : nodes.stream().map(ElementNode::toString).collect(Collectors.joining(ls));
     }
 }
